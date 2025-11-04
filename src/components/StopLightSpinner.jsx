@@ -7,11 +7,58 @@ export default function StoplightSpinner() {
   const [result, setResult] = useState(null); // 'green' | 'yellow' | 'red'
   const [description, setDescription] = useState(null); // 'green' | 'yellow' | 'red'
   const [selectedFood, setSelectedFood] = useState(null);
+  const [displayedFoods, setDisplayedFoods] = useState([]); // Random selection of up to 5 foods
   const wheelRef = useRef(null);
 
   const foods = {
-    green: ["Apple", "Salad", "Broccoli", "Green Beans"],
-    yellow: ["Rice", "Banana", "Corn", "Pasta"],
+    greenVeggie: [
+      "Swiss chard",
+      "Broccoli",
+      "Kale",
+      "Spinach",
+      "Asparagus",
+      "Carrots",
+      "Beets",
+      "Cucumbers",
+      "Peas",
+      "Onion",
+      "Green & yellow beans",
+      "Tomato",
+      "Pepper",
+    ],
+    yellowVeggie: ["Corn", "Potato"],
+    greenFruit: [
+      "Strawberries",
+      "Raspberries",
+      "Blueberries",
+      "Apple",
+      "Cherries",
+      "Lemon",
+      "Orange",
+      "Pear",
+      "Peach",
+      "Watermelon",
+    ],
+    yellowProtein: [
+      "Eggs",
+      "Low-fat cheese",
+      "Chickpeas",
+      "Kidney beans",
+      "Black beans",
+      "Navy beans",
+      "Lentils",
+      "Pinto beans",
+      "Fish",
+      "Crab",
+      "Chicken",
+    ],
+    yellowGrain: [
+      "Whole wheat bread",
+      "Whole wheat bun",
+      "Whole grain cracker",
+      "Unsweetened oatmeal",
+      "Hard taco shell",
+    ],
     red: ["Spin Again"],
   };
 
@@ -23,6 +70,7 @@ export default function StoplightSpinner() {
       description: "Choose a Green Stop Light Veggie",
       color: "#22C55E",
       angle: 63,
+      foodCategory: "greenVeggie",
     },
     {
       key: "yellow",
@@ -30,6 +78,7 @@ export default function StoplightSpinner() {
       description: "Choose a Yellow Stop Light Veggie",
       color: "#FCD34D",
       angle: 63,
+      foodCategory: "yellowVeggie",
     },
     {
       key: "green",
@@ -37,6 +86,7 @@ export default function StoplightSpinner() {
       description: "Choose a Green Stop Light Fruit",
       color: "#22C55E",
       angle: 63,
+      foodCategory: "greenFruit",
     },
     {
       key: "yellow",
@@ -44,6 +94,7 @@ export default function StoplightSpinner() {
       description: "Choose a Yellow Stop Light Protein",
       color: "#FCD34D",
       angle: 63,
+      foodCategory: "yellowProtein",
     },
     {
       key: "red",
@@ -51,6 +102,7 @@ export default function StoplightSpinner() {
       description: "Spin Again",
       color: "#DC2626",
       angle: 45,
+      foodCategory: "red",
     },
     {
       key: "yellow",
@@ -58,6 +110,7 @@ export default function StoplightSpinner() {
       description: "Choose a Yellow Stop Light Grain",
       color: "#FCD34D",
       angle: 63,
+      foodCategory: "yellowGrain",
     },
   ];
 
@@ -82,11 +135,23 @@ export default function StoplightSpinner() {
       acc = end;
     }
   })();
+  
+  // Helper function to randomly select up to 5 foods from a category
+  const getRandomFoods = (category) => {
+    const allFoods = foods[category];
+    const maxToShow = Math.min(5, allFoods.length);
+    
+    // Shuffle and take first maxToShow items
+    const shuffled = [...allFoods].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, maxToShow);
+  };
+  
   const spinWheel = () => {
     if (isSpinning) return;
     setIsSpinning(true);
     setSelectedFood(null);
     setResult(null);
+    setDisplayedFoods([]);
 
     // Pick a random degree (0-360)
     const r = Math.random() * 360;
@@ -137,6 +202,8 @@ export default function StoplightSpinner() {
       setIsSpinning(false);
       setResult(pickedSection.key);
       setDescription(pickedSection.description);
+      // Select random foods from the category
+      setDisplayedFoods(getRandomFoods(pickedSection.foodCategory));
     }, duration);
   };
 
@@ -244,7 +311,7 @@ export default function StoplightSpinner() {
             <div className={styles.foodList}>
               <p className={styles.chooseText}>{description}</p>
               <div className={styles.foodButtons}>
-                {foods[result].map((food) => (
+                {displayedFoods.map((food) => (
                   <button
                     key={food}
                     className={styles.foodButton}
